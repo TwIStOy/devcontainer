@@ -16,3 +16,9 @@ RUN apt install -y --no-install-recommends libjemalloc-dev libz-dev make \
 # install tools
 RUN /root/.cargo/bin/cargo install ripgrep fd-find bat exa stylua git-delta
 
+# install cmake
+RUN apt install -y --no-install-recommends wget
+RUN cd /tmp && wget "https://github.com/Kitware/CMake/releases/download/v3.20.1/cmake-3.20.1.tar.gz" && \
+    tar xf cmake-3.20.1.tar.gz && cd cmake-3.20.1 && \
+    ./bootstrap && make && make install
+
