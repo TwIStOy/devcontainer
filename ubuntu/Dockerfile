@@ -9,6 +9,10 @@ RUN apt install -y --no-install-recommends ca-certificates curl git g++
 # install rust
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
+RUN apt install -y --no-install-recommends libjemalloc-dev libz-dev make \
+    pkg-config libtool libtool-bin m4 autoconf unzip libncursesw5-dev \
+    libncurses-dev libssl-dev
+
 # install tools
-RUN /root/.cargo/bin/cargo install ripgrep fd-find bat exa delta stylua
+RUN /root/.cargo/bin/cargo install ripgrep fd-find bat exa stylua git-delta
 
