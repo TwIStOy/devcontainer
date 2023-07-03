@@ -10,7 +10,6 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 # install tools
 RUN /root/.cargo/bin/cargo install ripgrep
 RUN /root/.cargo/bin/cargo install bat
-RUN /root/.cargo/bin/cargo install stylua
 
 # install cmake
 RUN cd /tmp && wget "https://github.com/Kitware/CMake/releases/download/v3.20.1/cmake-3.20.1.tar.gz" && \
