@@ -12,8 +12,14 @@ RUN /root/.cargo/bin/cargo install ripgrep
 RUN /root/.cargo/bin/cargo install bat
 
 # install cmake
-RUN cd /tmp && wget "https://github.com/Kitware/CMake/releases/download/v3.20.1/cmake-3.20.1.tar.gz" && \
-    tar xf cmake-3.20.1.tar.gz && cd cmake-3.20.1 && \
-    ./bootstrap && make && make install && rm -rf /tmp/cmake-3.20.1.tar.gz && \
-    rm -rf /tmp/cmake-3.20.1
+RUN cd /tmp && wget "https://github.com/Kitware/CMake/releases/download/v3.26.4/cmake-3.26.4.tar.gz" && \
+    tar xf cmake-3.26.4.tar.gz && cd cmake-3.26.4 && \
+    ./bootstrap && make && make install && rm -rf /tmp/cmake-3.26.4.tar.gz && \
+    rm -rf /tmp/cmake-3.26.4
+
+# install neovim
+RUN cd /tmp && wget https://github.com/neovim/neovim/archive/refs/heads/master.zip && \
+    unzip master.zip && cd neovim-master && \
+    make CMAKE_BUILD_TYPE=Release && make install && rm -rf /tmp/neovim-master.zip && \
+    rm -rf /tmp/neovim-master
 
