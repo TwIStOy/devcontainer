@@ -34,6 +34,6 @@ RUN apt install -y fish
 SHELL ["/usr/bin/bash", "-c"]
 
 # install nodejs
-RUN /usr/bin/bash -c "source /root/.bashrc && fnm use --install-if-missing 16.14" && \
-    /usr/bin/bash -c "source /root/.bashrc && fnm exec --using=16.14 npm install -g neovim"
+RUN source /root/.bashrc && fnm use --install-if-missing 16.14 && \
+    fnm exec --using=16.14 npm install -g neovim
 
