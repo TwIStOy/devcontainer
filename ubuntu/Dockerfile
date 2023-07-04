@@ -17,9 +17,6 @@ RUN cd /tmp && wget "https://github.com/Kitware/CMake/releases/download/v3.26.4/
     ./bootstrap && make && make install && rm -rf /tmp/cmake-3.26.4.tar.gz && \
     rm -rf /tmp/cmake-3.26.4
 
-# install fnm && nodejs
-RUN curl -fsSL https://fnm.vercel.app/install | bash
-
 # install neovim
 RUN cd /tmp && wget https://github.com/neovim/neovim/archive/refs/heads/master.zip && \
     unzip master.zip && cd neovim-master && \
@@ -31,9 +28,18 @@ RUN pip install neovim
 
 RUN apt install -y fish
 
-SHELL ["/usr/bin/bash", "-c"]
+SHELL ["/bin/bash", "-c"]
 
-# install nodejs
-RUN source /root/.bashrc && fnm use --install-if-missing 16.14 && \
-    fnm exec --using=16.14 npm install -g neovim
+# install fnm && nodejs
+RUN curl -fsSL https://fnm.vercel.app/install | bash -s -- --install-dir "/opt/fnm" --skip-shell && \
+    ln -s /opt/fnm/fnm /usr/bin/ && chmod +x /usr/bin/fnm && \
+    fnm -V
+
+RUN /bin/bash -c "source /etc/bash.bashrc && fnm install --fnm-dir /opt/fnm 16.14"
+RUN /bin/bash -c "source /etc/bash.bashrc && fnm alias --fnm-dir /opt/fnm default 16.14" && \
+    /bin/bash -c 'source /etc/bash.bashrc && /bin/ln -s "/opt/fnm/aliases/default/bin/node" /usr/bin/node' && \
+    /bin/bash -c 'source /etc/bash.bashrc && /bin/ln -s "/opt/fnm/aliases/default/bin/npm" /usr/bin/npm' && \
+    node -v && \
+    npm -v && \
+    npm install -g neovim
 
