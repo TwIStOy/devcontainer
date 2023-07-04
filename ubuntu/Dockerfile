@@ -32,6 +32,6 @@ RUN pip install neovim
 RUN apt install -y fish
 
 # install nodejs
-RUN fish -c "/root/.local/share/fnm/fnm use --install-if-missing 16.14"
-RUN fish -c "/root/.local/share/fnm/fnm exec --using=16.14 npm install -g neovim"
+RUN /root/.local/share/fnm/fnm use --install-if-missing 16.14
+RUN /root/.local/share/fnm/fnm exec --using=16.14 npm install -g neovim
 
