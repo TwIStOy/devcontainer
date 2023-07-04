@@ -29,4 +29,9 @@ RUN cd /tmp && wget https://github.com/neovim/neovim/archive/refs/heads/master.z
 # install pynvim
 RUN pip install neovim
 
+# install nodejs
+RUN /root/.local/share/fnm/fnm use --install-if-missing 16.14 && \
+    /root/.local/share/fnm/fnm exec --using=16.14 npm install -g neovim
+
+RUN apt install -y fish
 
