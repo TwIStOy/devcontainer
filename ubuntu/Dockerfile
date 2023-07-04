@@ -27,6 +27,6 @@ RUN cd /tmp && wget https://github.com/neovim/neovim/archive/refs/heads/master.z
     rm -rf /tmp/neovim-master
 
 # install pynvim
-RUN pip install neovim --break-system-packages
+RUN pip install neovim
 
 
