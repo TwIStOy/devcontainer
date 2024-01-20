@@ -1,21 +1,14 @@
-FROM amd64/ubuntu:22.04
+FROM --platform=linux/amd64 rust as rustbuilder
+
+RUN cargo install ripgrep
+RUN cargo install bat
+
+FROM --platform=linux/amd64 ubuntu:24.04 as cmakebuilder
 
 RUN apt update && apt install -y --no-install-recommends ca-certificates curl git g++ make \
     libjemalloc-dev libz-dev make pkg-config libtool libtool-bin m4 autoconf unzip libncursesw5-dev \
-    libncurses-dev libssl-dev wget gettext python3-pip python3-venv
-
-# install rust
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-
-# install tools
-RUN /root/.cargo/bin/cargo install ripgrep
-RUN /root/.cargo/bin/cargo install bat
-
-# install cmake
-RUN cd /tmp && wget "https://github.com/Kitware/CMake/releases/download/v3.26.4/cmake-3.26.4.tar.gz" && \
-    tar xf cmake-3.26.4.tar.gz && cd cmake-3.26.4 && \
-    ./bootstrap && make && make install && rm -rf /tmp/cmake-3.26.4.tar.gz && \
-    rm -rf /tmp/cmake-3.26.4
+    libncurses-dev libssl-dev wget gettext python3-pip python3-venv cmake && \
+    apt clean && rm -rf /var/lib/apt/lists/*
 
 # install neovim
 RUN cd /tmp && wget https://github.com/neovim/neovim/archive/refs/heads/master.zip && \
@@ -23,23 +16,48 @@ RUN cd /tmp && wget https://github.com/neovim/neovim/archive/refs/heads/master.z
     make CMAKE_BUILD_TYPE=Release && make install && rm -rf /tmp/neovim-master.zip && \
     rm -rf /tmp/neovim-master
 
-# install pynvim
-RUN pip install neovim
+FROM --platform=linux/amd64 ubuntu:24.04 as llvm-stage
 
-RUN apt install -y fish
+RUN apt update && apt install -y --no-install-recommends xz-utils curl ca-certificates
+RUN cd /tmp && curl -SL https://github.com/llvm/llvm-project/releases/download/llvmorg-17.0.6/clang+llvm-17.0.6-x86_64-linux-gnu-ubuntu-22.04.tar.xz -# -o llvm.tar.xz && \
+    mkdir llvm-17/ && tar xf ./llvm.tar.xz -C llvm-17/ --strip-components=1
 
-SHELL ["/bin/bash", "-c"]
+FROM --platform=linux/amd64 ubuntu:24.04
 
-# install fnm && nodejs
-RUN curl -fsSL https://fnm.vercel.app/install | bash -s -- --install-dir "/opt/fnm" --skip-shell && \
-    ln -s /opt/fnm/fnm /usr/bin/ && chmod +x /usr/bin/fnm && \
-    fnm -V
+RUN apt update && apt install -y --no-install-recommends ca-certificates curl git g++ make \
+    libjemalloc-dev libz-dev make pkg-config libtool libtool-bin m4 autoconf unzip libncursesw5-dev \
+    libncurses-dev libssl-dev wget gettext python3-pip python3-venv && \
+    apt clean && rm -rf /var/lib/apt/lists/*
 
-RUN /bin/bash -c "source /etc/bash.bashrc && fnm install --fnm-dir /opt/fnm 16.14"
-RUN /bin/bash -c "source /etc/bash.bashrc && fnm alias --fnm-dir /opt/fnm default 16.14" && \
-    /bin/bash -c 'source /etc/bash.bashrc && /bin/ln -s "/opt/fnm/aliases/default/bin/node" /usr/bin/node' && \
-    /bin/bash -c 'source /etc/bash.bashrc && /bin/ln -s "/opt/fnm/aliases/default/bin/npm" /usr/bin/npm' && \
-    node -v && \
-    npm -v && \
-    npm install -g neovim
+# install cmake
+RUN cd /tmp && wget "https://github.com/Kitware/CMake/releases/download/v3.28.1/cmake-3.28.1.tar.gz" && \
+    tar xf cmake-3.28.1.tar.gz && cd cmake-3.28.1 && \
+    ./bootstrap && make -j8 && make install && rm -rf /tmp/cmake-3.28.1.tar.gz && \
+    rm -rf /tmp/cmake-3.28.1
 
+COPY --from=rustbuilder /usr/local/cargo/bin/rg /usr/local/bin/rg
+COPY --from=rustbuilder /usr/local/cargo/bin/bat /usr/local/bin/bat
+COPY --from=cmakebuilder /usr/local/bin/nvim /usr/local/bin/nvim
+COPY --from=cmakebuilder /usr/local/share/nvim /usr/local/share/nvim
+COPY --from=llvm-stage /tmp/llvm-17/bin/ /usr/bin/
+COPY --from=llvm-stage /tmp/llvm-17/lib/ /usr/lib/
+
+ENTRYPOINT ["/bin/bash"]
+
+# RUN apt install -y fish
+# 
+# SHELL ["/bin/bash", "-c"]
+# 
+# # install fnm && nodejs
+# RUN curl -fsSL https://fnm.vercel.app/install | bash -s -- --install-dir "/opt/fnm" --skip-shell && \
+#     ln -s /opt/fnm/fnm /usr/bin/ && chmod +x /usr/bin/fnm && \
+#     fnm -V
+# 
+# RUN /bin/bash -c "source /etc/bash.bashrc && fnm install --fnm-dir /opt/fnm 16.14"
+# RUN /bin/bash -c "source /etc/bash.bashrc && fnm alias --fnm-dir /opt/fnm default 16.14" && \
+#     /bin/bash -c 'source /etc/bash.bashrc && /bin/ln -s "/opt/fnm/aliases/default/bin/node" /usr/bin/node' && \
+#     /bin/bash -c 'source /etc/bash.bashrc && /bin/ln -s "/opt/fnm/aliases/default/bin/npm" /usr/bin/npm' && \
+#     node -v && \
+#     npm -v && \
+#     npm install -g neovim
+# 
