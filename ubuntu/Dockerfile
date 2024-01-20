@@ -22,6 +22,12 @@ RUN apt update && apt install -y --no-install-recommends xz-utils curl ca-certif
 RUN cd /tmp && curl -SL https://github.com/llvm/llvm-project/releases/download/llvmorg-17.0.6/clang+llvm-17.0.6-x86_64-linux-gnu-ubuntu-22.04.tar.xz -# -o llvm.tar.xz && \
     mkdir llvm-17/ && tar xf ./llvm.tar.xz -C llvm-17/ --strip-components=1
 
+FROM --platform=linux/amd64 ubuntu:24.04 as node-stage
+
+RUN apt update && apt install -y --no-install-recommends xz-utils curl ca-certificates
+RUN cd /tmp && curl -SL https://nodejs.org/dist/v20.11.0/node-v20.11.0-linux-x64.tar.xz -# -o node.tar.xz && \
+    mkdir node/ && tar xf ./node.tar.xz -C node/ --strip-components=1
+
 FROM --platform=linux/amd64 ubuntu:24.04
 
 RUN apt update && apt install -y --no-install-recommends ca-certificates curl git g++ make \
@@ -41,6 +47,10 @@ COPY --from=cmakebuilder /usr/local/bin/nvim /usr/local/bin/nvim
 COPY --from=cmakebuilder /usr/local/share/nvim /usr/local/share/nvim
 COPY --from=llvm-stage /tmp/llvm-17/bin/ /usr/bin/
 COPY --from=llvm-stage /tmp/llvm-17/lib/ /usr/lib/
+COPY --from=node-stage /tmp/node/bin/ /usr/bin/
+COPY --from=node-stage /tmp/node/lib/ /usr/lib/
+COPY --from=node-stage /tmp/node/include/ /usr/include/
+COPY --from=node-stage /tmp/node/share/ /usr/share/
 
 ENTRYPOINT ["/bin/bash"]
 
