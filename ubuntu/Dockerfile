@@ -52,22 +52,6 @@ COPY --from=node-stage /tmp/node/lib/ /usr/lib/
 COPY --from=node-stage /tmp/node/include/ /usr/include/
 COPY --from=node-stage /tmp/node/share/ /usr/share/
 
-ENTRYPOINT ["/bin/bash"]
+RUN npm install -g neovim && pip3 install neovim --break-system-packages
 
-# RUN apt install -y fish
-# 
-# SHELL ["/bin/bash", "-c"]
-# 
-# # install fnm && nodejs
-# RUN curl -fsSL https://fnm.vercel.app/install | bash -s -- --install-dir "/opt/fnm" --skip-shell && \
-#     ln -s /opt/fnm/fnm /usr/bin/ && chmod +x /usr/bin/fnm && \
-#     fnm -V
-# 
-# RUN /bin/bash -c "source /etc/bash.bashrc && fnm install --fnm-dir /opt/fnm 16.14"
-# RUN /bin/bash -c "source /etc/bash.bashrc && fnm alias --fnm-dir /opt/fnm default 16.14" && \
-#     /bin/bash -c 'source /etc/bash.bashrc && /bin/ln -s "/opt/fnm/aliases/default/bin/node" /usr/bin/node' && \
-#     /bin/bash -c 'source /etc/bash.bashrc && /bin/ln -s "/opt/fnm/aliases/default/bin/npm" /usr/bin/npm' && \
-#     node -v && \
-#     npm -v && \
-#     npm install -g neovim
-# 
+ENTRYPOINT ["/bin/bash"]

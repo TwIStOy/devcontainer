@@ -1,0 +1,17 @@
+version: "3"
+
+service:
+  devcontainer:
+    build: ./ubuntu
+    network_mode: "host"
+    command: ["tail", "-f", "/dev/null"]
+    user: "${UID}:${GID}"
+    cap_add:
+      - ALL
+    pid: "host"
+    volumns:
+      - type: bind
+        source: ~/.dotvim
+        target: ~/.dotvim
+        read_only: true
+
