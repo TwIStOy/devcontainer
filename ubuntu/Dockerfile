@@ -54,4 +54,6 @@ COPY --from=node-stage /tmp/node/share/ /usr/share/
 
 RUN npm install -g neovim && pip3 install neovim --break-system-packages
 
+RUN useradd -u 501 -m hawtian
+
 ENTRYPOINT ["/bin/bash"]

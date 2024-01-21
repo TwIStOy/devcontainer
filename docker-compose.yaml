@@ -1,17 +1,17 @@
 version: "3"
 
-service:
+services:
   devcontainer:
     build: ./ubuntu
     network_mode: "host"
-    command: ["tail", "-f", "/dev/null"]
+    command: "-f /dev/null"
+    entrypoint: /usr/bin/tail
+    tty: true
     user: "${UID}:${GID}"
     cap_add:
       - ALL
     pid: "host"
-    volumns:
-      - type: bind
-        source: ~/.dotvim
-        target: ~/.dotvim
-        read_only: true
+    volumes:
+      - ~/.dotvim:/home/hawtian/.dotvim:ro
+      - ~/.config/nvim/:/home/hawtian/.config/nvim:ro
 
