@@ -3,7 +3,7 @@ FROM --platform=linux/amd64 rust as rustbuilder
 RUN cargo install ripgrep
 RUN cargo install bat
 
-FROM --platform=linux/amd64 ubuntu:24.04 as cmakebuilder
+FROM --platform=linux/amd64 ubuntu:24.04 as nvim-builder
 
 RUN apt update && apt install -y --no-install-recommends ca-certificates curl git g++ make \
     libjemalloc-dev libz-dev make pkg-config libtool libtool-bin m4 autoconf unzip libncursesw5-dev \
@@ -43,8 +43,8 @@ RUN cd /tmp && wget "https://github.com/Kitware/CMake/releases/download/v3.28.1/
 
 COPY --from=rustbuilder /usr/local/cargo/bin/rg /usr/local/bin/rg
 COPY --from=rustbuilder /usr/local/cargo/bin/bat /usr/local/bin/bat
-COPY --from=cmakebuilder /usr/local/bin/nvim /usr/local/bin/nvim
-COPY --from=cmakebuilder /usr/local/share/nvim /usr/local/share/nvim
+COPY --from=nvim-builder /usr/local/bin/nvim /usr/local/bin/nvim
+COPY --from=nvim-builder /usr/local/share/nvim /usr/local/share/nvim
 COPY --from=llvm-stage /tmp/llvm-17/bin/ /usr/bin/
 COPY --from=llvm-stage /tmp/llvm-17/lib/ /usr/lib/
 COPY --from=node-stage /tmp/node/bin/ /usr/bin/
